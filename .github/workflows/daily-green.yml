@@ -2,7 +2,10 @@ name: Daily Green
 
 on:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "0 14 * * *"
+    - cron: "0 18 * * *"
+    - cron: "0 22 * * *"
+    - cron: "0 2 * * *"
   workflow_dispatch:
 
 jobs:
@@ -12,24 +15,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Make a daily commit at a random time
+      - id: decide
+        name: Decide if it is time to commit today
         run: |
-          TODAY=$(date -u '+%Y-%m-%d')
-          if grep -q "$TODAY" daily-activity.md 2>/dev/null; then
-            echo "Already committed today ($TODAY), skipping."
-            exit 0
-          fi
-          TARGET=$(python3 -c "import hashlib, datetime; d=datetime.datetime.utcnow().strftime('%Y-%m-%d'); print(int(hashlib.sha256(d.encode()).hexdigest(), 16) % 1440)")
-          NOW=$((10#$(date -u '+%H') * 60 + 10#$(date -u '+%M')))
-          echo "Today $TODAY target minute $TARGET, now $NOW"
-          if [ "$NOW" -lt "$TARGET" ]; then
-            echo "Not yet time today, skipping this hour."
-            exit 0
-          fi
-          sleep $((RANDOM % 1800))
+          python3 - << 'PY'
+          import hashlib, os
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          now = datetime.now(ZoneInfo("America/New_York"))
+          today = now.strftime("%Y-%m-%d")
+          now_min = now.hour * 60 + now.minute
+          target = 540 + int(hashlib.sha256(today.encode()).hexdigest(), 16) % 660
+          already = False
+          try:
+              with open("daily-activity.md", encoding="utf-8") as f:
+                  already = today in f.read()
+          except FileNotFoundError:
+              already = False
+          should = (not already) and (now_min >= 1260 or now_min >= target)
+          reason = "already committed" if already else ("21:00 fallback" if now_min >= 1260 else ("target reached" if now_min >= target else "not yet time"))
+          print(f"today={today} now_min={now_min} target_min={target} already={already} should_commit={should} reason={reason}")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write(f"should_commit={'true' if should else 'false'}\n")
+              out.write(f"today={today}\n")
+          PY
+      - name: Make the daily commit
+        if: steps.decide.outputs.should_commit == 'true'
+        run: |
           git config user.name "mrcxzhou"
           git config user.email "mr.zhouchuanxiong@gmail.com"
-          echo "- $(date -u '+%Y-%m-%d %H:%M UTC') daily activity" >> daily-activity.md
+          git pull --rebase
+          TODAY=$(TZ=America/New_York date '+%Y-%m-%d')
+          if grep -q "$TODAY" daily-activity.md 2>/dev/null; then
+            echo "Already committed today, skipping."
+            exit 0
+          fi
+          echo "- $(TZ=America/New_York date '+%Y-%m-%d %H:%M EST') daily activity" >> daily-activity.md
           git add daily-activity.md
-          git diff --cached --quiet || git commit -m "chore: daily activity $(date -u '+%Y-%m-%d')"
+          git diff --cached --quiet || git commit -m "chore: daily activity $(TZ=America/New_York date '+%Y-%m-%d')"
           git push
