@@ -2,7 +2,7 @@ name: Daily Green
 
 on:
   schedule:
-    - cron: "0 1 * * *"
+    - cron: "0 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -12,8 +12,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Make a daily commit
+      - name: Make a daily commit at a random time
         run: |
+          TODAY=$(date -u '+%Y-%m-%d')
+          if grep -q "$TODAY" daily-activity.md 2>/dev/null; then
+            echo "Already committed today ($TODAY), skipping."
+            exit 0
+          fi
+          TARGET=$(python3 -c "import hashlib, datetime; d=datetime.datetime.utcnow().strftime('%Y-%m-%d'); print(int(hashlib.sha256(d.encode()).hexdigest(), 16) % 1440)")
+          NOW=$((10#$(date -u '+%H') * 60 + 10#$(date -u '+%M')))
+          echo "Today $TODAY target minute $TARGET, now $NOW"
+          if [ "$NOW" -lt "$TARGET" ]; then
+            echo "Not yet time today, skipping this hour."
+            exit 0
+          fi
+          sleep $((RANDOM % 1800))
           git config user.name "mrcxzhou"
           git config user.email "mr.zhouchuanxiong@gmail.com"
           echo "- $(date -u '+%Y-%m-%d %H:%M UTC') daily activity" >> daily-activity.md
