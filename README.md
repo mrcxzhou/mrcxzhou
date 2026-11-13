@@ -11,14 +11,11 @@
   <img src="https://komarev.com/ghpvc/?username=mrcxzhou&color=ff007f&style=for-the-badge" alt="profile views" />
   <img src="https://img.shields.io/badge/learning-by%20building-FF007F?style=for-the-badge" alt="learning by building" />
   <img src="https://img.shields.io/badge/shipping-every%20day-00D4FF?style=for-the-badge" alt="shipping every day" />
+  <img src="https://img.shields.io/badge/daily-green-every%20day-brightgreen?style=for-the-badge" alt="daily green" />
 </p>
 
 <p align="center">
   <img src="https://quotes-github-readme.vercel.app/api?type=horizontal&theme=tokyonight" alt="dev quote" />
-</p>
-
-<p align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=mrcxzhou&theme=tokyonight&no-frame=true&no-bg=true&row=1&column=6" alt="trophies" />
 </p>
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF007F,100:00D4FF&height=6" alt="" />
@@ -31,6 +28,21 @@
 🚀 现在：新号刚建，从 0 开始搭主页，每天 1 个真实改进，再跑几个小项目<br/>
 ✨ 目标：主页越填越满，项目越跑越稳<br/>
 </p>
+
+```python
+class Mrcxzhou:
+    def __init__(self):
+        self.name = "mrcxzhou"
+        self.focus = ["small tools", "automation", "AI coding"]
+        self.motto = "make it work. make it cool."
+        self.daily = "one real commit every day"
+
+    def today(self):
+        return "learning by building · shipping every day"
+
+me = Mrcxzhou()
+print(me.today())
+```
 
 ```console
 $ whoami
@@ -68,19 +80,23 @@ make it work. make it cool.
 
 | | |
 | --- | --- |
-| <a href="https://github.com/mrcxzhou"><img align="center" src="https://github-readme-stats.vercel.app/api?username=mrcxzhou&show_icons=true&theme=tokyonight&hide_border=true" alt="mrcxzhou's GitHub stats" /></a> | <a href="https://github.com/mrcxzhou"><img align="center" src="https://github-readme-streak-stats.herokuapp.com/?user=mrcxzhou&theme=tokyonight&hide_border=true" alt="streak stats" /></a> |
-| <a href="https://github.com/mrcxzhou"><img align="center" src="https://github-readme-stats.vercel.app/api/top-langs/?username=mrcxzhou&layout=compact&theme=tokyonight&hide_border=true" alt="top languages" /></a> | <a href="https://github.com/mrcxzhou"><img align="center" src="https://github-profile-summary-cards.vercel.app/api/cards/productive-time?username=mrcxzhou&theme=tokyonight" alt="productive time" /></a> |
-
-<p align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=mrcxzhou&theme=tokyo-night&hide_border=true" alt="activity graph" />
-</p>
+| <a href="https://github.com/mrcxzhou"><img align="center" src="https://github-profile-summary-cards.vercel.app/api/cards/stats?username=mrcxzhou&theme=tokyonight" alt="mrcxzhou's GitHub stats" /></a> | <a href="https://github.com/mrcxzhou"><img align="center" src="https://github-readme-streak-stats.herokuapp.com/?user=mrcxzhou&theme=tokyonight&hide_border=true" alt="streak stats" /></a> |
+| <a href="https://github.com/mrcxzhou"><img align="center" src="https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=mrcxzhou&theme=tokyonight" alt="repos per language" /></a> | <a href="https://github.com/mrcxzhou"><img align="center" src="https://github-profile-summary-cards.vercel.app/api/cards/productive-time?username=mrcxzhou&theme=tokyonight" alt="productive time" /></a> |
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF007F,100:00D4FF&height=6" alt="" />
 
 ## 🐍 Contribution Snake
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/mrcxzhou/mrcxzhou/output/github-contribution-grid-snake-dark.svg" alt="contribution snake" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/mrcxzhou/mrcxzhou/output/github-contribution-grid-snake-dark.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/mrcxzhou/mrcxzhou/output/github-contribution-grid-snake.svg" />
+    <img src="https://raw.githubusercontent.com/mrcxzhou/mrcxzhou/output/github-contribution-grid-snake-dark.svg" alt="contribution snake" />
+  </picture>
+</p>
+
+<p align="center">
+每天自动提交点亮绿点，蛇会越长越完整。
 </p>
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF007F,100:00D4FF&height=6" alt="" />
@@ -95,7 +111,7 @@ make it work. make it cool.
 
 - [ ] 再跑几个小工具，慢慢把主页填满
 - [ ] 把好用的小工具都收进新号
-- [ ] 让统计、奖杯和活动图都亮起来
+- [ ] 让统计和贡献蛇都亮起来
 
 <p align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF007F,50:7C3AED,100:00D4FF&height=160&section=footer&animation=twinkling" alt="footer" />
