@@ -77,6 +77,14 @@ make it work. make it cool.
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF007F,100:00D4FF&height=6" alt="" />
 
+## 🐍 Contribution Snake
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/mrcxzhou/mrcxzhou/output/github-contribution-grid-snake-dark.svg" alt="contribution snake" />
+</p>
+
+<img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF007F,100:00D4FF&height=6" alt="" />
+
 ## 🚀 Coming Soon
 
 <p align="center">
