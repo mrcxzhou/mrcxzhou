@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: decide
-        name: Decide which runs are due today
+        name: Decide how many commits are due today
         run: |
           python3 - << 'PY'
           import hashlib, os
@@ -26,34 +26,33 @@ jobs:
           now_min = now.hour * 60 + now.minute
           morning_target = 480 + int(hashlib.sha256((today + ":morning").encode()).hexdigest(), 16) % 240
           afternoon_target = 840 + int(hashlib.sha256((today + ":afternoon").encode()).hexdigest(), 16) % 240
-          morning_done = afternoon_done = False
+          PER_SLOT = 5
+          morning_count = afternoon_count = 0
           try:
               with open("daily-activity.md", encoding="utf-8") as f:
                   lines = f.read().splitlines()
-              morning_done = any(
-                  line.startswith(f"- {today} ") and "(morning)" in line for line in lines
+              morning_count = sum(
+                  1 for line in lines
+                  if line.startswith(f"- {today} ") and "(morning)" in line
               )
-              afternoon_done = any(
-                  line.startswith(f"- {today} ") and "(afternoon)" in line for line in lines
+              afternoon_count = sum(
+                  1 for line in lines
+                  if line.startswith(f"- {today} ") and "(afternoon)" in line
               )
           except FileNotFoundError:
               pass
           review = now_min >= 1260
-          morning_due = (not morning_done) and (
-              (480 <= now_min <= 720 and now_min >= morning_target) or review
-          )
-          afternoon_due = (not afternoon_done) and (
-              (840 <= now_min <= 1080 and now_min >= afternoon_target) or review
-          )
-          due = []
-          if morning_due:
-              due.append("morning")
-          if afternoon_due:
-              due.append("afternoon")
-          print(f"today={today} now_min={now_min} morning_target={morning_target} afternoon_target={afternoon_target} morning_done={morning_done} afternoon_done={afternoon_done} due={due}")
+          morning_due = 0
+          afternoon_due = 0
+          if (480 <= now_min <= 720 and now_min >= morning_target) or review:
+              morning_due = max(0, PER_SLOT - morning_count)
+          if (840 <= now_min <= 1080 and now_min >= afternoon_target) or review:
+              afternoon_due = max(0, PER_SLOT - afternoon_count)
+          print(f"today={today} now_min={now_min} morning_target={morning_target} afternoon_target={afternoon_target} morning_count={morning_count} afternoon_count={afternoon_count} morning_due={morning_due} afternoon_due={afternoon_due}")
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
-              out.write(f"should_commit={'true' if due else 'false'}\n")
-              out.write(f"runs={','.join(due)}\n")
+              out.write(f"should_commit={'true' if (morning_due or afternoon_due) else 'false'}\n")
+              out.write(f"morning_due={morning_due}\n")
+              out.write(f"afternoon_due={afternoon_due}\n")
               out.write(f"today={today}\n")
           PY
       - name: Make the commit(s)
@@ -61,23 +60,26 @@ jobs:
         run: |
           git config user.name "mrcxzhou"
           git config user.email "mr.zhouchuanxiong@gmail.com"
-          git pull --rebase
           TODAY=$(TZ=America/New_York date '+%Y-%m-%d')
-          NOW=$(TZ=America/New_York date '+%Y-%m-%d %H:%M EST')
-          RUNS="${{ steps.decide.outputs.runs }}"
-          CHANGED=0
-          for SLOT in $(echo "$RUNS" | tr ',' ' '); do
-            if grep -q "^- $TODAY .*($SLOT)" daily-activity.md 2>/dev/null; then
-              echo "Already did $SLOT today, skipping."
+          for SLOT in morning afternoon; do
+            if [ "$SLOT" = "morning" ]; then
+              N="${{ steps.decide.outputs.morning_due }}"
             else
-              echo "- $NOW daily activity ($SLOT)" >> daily-activity.md
-              CHANGED=1
+              N="${{ steps.decide.outputs.afternoon_due }}"
             fi
+            i=0
+            while [ "$i" -lt "$N" ]; do
+              git pull --rebase
+              COUNT=$(grep -c "^- $TODAY .*($SLOT)" daily-activity.md 2>/dev/null || echo 0)
+              if [ "$COUNT" -ge 5 ]; then
+                echo "$SLOT already at 5 today, stopping."
+                break
+              fi
+              NOW=$(TZ=America/New_York date '+%Y-%m-%d %H:%M EST')
+              echo "- $NOW daily activity ($SLOT) #$((COUNT+1))" >> daily-activity.md
+              git add daily-activity.md
+              git diff --cached --quiet || git commit -m "chore: daily activity $TODAY ($SLOT) #$((COUNT+1))"
+              git push
+              i=$((i+1))
+            done
           done
-          if [ "$CHANGED" = "1" ]; then
-            git add daily-activity.md
-            git diff --cached --quiet || git commit -m "chore: daily activity $TODAY ($RUNS)"
-            git push
-          else
-            echo "Nothing new to commit."
-          fi
