@@ -101,7 +101,9 @@ make it work. make it cool.
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=0:FF007F,100:00D4FF&height=6" alt="" />
 
-## 🚀 Coming Soon
+## 🚀 Projects
+
+- [📈 investment-toolbox](https://github.com/mrcxzhou/investment-toolbox) — 个人投资工具箱：选股五指标清单、LOF 套利观察、IBKR 自查
 
 <p align="center">
 新号刚建，项目陆续上架中 — 先把主页点亮，再把小工具一个一个跑起来。
