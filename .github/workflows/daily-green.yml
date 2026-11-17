@@ -24,8 +24,11 @@ jobs:
           now = datetime.now(ZoneInfo("America/New_York"))
           today = now.strftime("%Y-%m-%d")
           now_min = now.hour * 60 + now.minute
+          # Random target inside each window, derived from the date so it
+          # is stable within the day but different every day.
           morning_target = 480 + int(hashlib.sha256((today + ":morning").encode()).hexdigest(), 16) % 240
           afternoon_target = 840 + int(hashlib.sha256((today + ":afternoon").encode()).hexdigest(), 16) % 240
+          # Deep green: 5 commits per slot, 10 per day.
           PER_SLOT = 5
           morning_count = afternoon_count = 0
           try:
@@ -41,7 +44,7 @@ jobs:
               )
           except FileNotFoundError:
               pass
-          review = now_min >= 1260
+          review = now_min >= 1260  # 21:00 ET fallback review
           morning_due = 0
           afternoon_due = 0
           if (480 <= now_min <= 720 and now_min >= morning_target) or review:
@@ -60,6 +63,10 @@ jobs:
         run: |
           git config user.name "mrcxzhou"
           git config user.email "mr.zhouchuanxiong@gmail.com"
+          # actions/checkout leaves a detached HEAD for schedule events;
+          # `git pull --rebase` fails there ("not currently on a branch").
+          git fetch origin main --depth=1
+          git checkout -B main origin/main
           TODAY=$(TZ=America/New_York date '+%Y-%m-%d')
           for SLOT in morning afternoon; do
             if [ "$SLOT" = "morning" ]; then
@@ -70,7 +77,8 @@ jobs:
             i=0
             while [ "$i" -lt "$N" ]; do
               git pull --rebase
-              COUNT=$(grep -c "^- $TODAY .*($SLOT)" daily-activity.md 2>/dev/null || echo 0)
+              COUNT=$(grep -c "^- $TODAY .*($SLOT)" daily-activity.md 2>/dev/null || true)
+              COUNT=${COUNT:-0}
               if [ "$COUNT" -ge 5 ]; then
                 echo "$SLOT already at 5 today, stopping."
                 break
